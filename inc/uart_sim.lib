@@ -1,0 +1,14 @@
+@-------------------------------------------------------------------
+@ File:           uart_sim.s
+@ Author:         Pedro Botelho
+@ Date:           13/06/2021
+@ Institution:    Federal University of Ceará
+@ Institution ID: 471047
+@
+@ Description:    XX
+@ Implementation: Developed in ARM 32-bit Assembly.
+@ Compiling:      make all
+@ License:        GNU General Public License v3.0
+@-------------------------------------------------------------------
+
+.GLOBAL _decodeUART

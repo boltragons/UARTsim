@@ -15,53 +15,21 @@
 @ Debugging:      make debug        
 @-------------------------------------------------------------------
 
-.TEXT
 
-.ARM
-
-.INCLUDE "copycat.lib"
+.IFNDEF COPYCAT_LIB
+.EQU    COPYCAT_LIB, 0
 
 
 @-------------------------------------------------------------------
-_abortProgram:
-@ Description: Restore stack pointer to default position and exit
-@              with error code.
-@ Receives:    Nothing.
-@ Returns:     Nothing.
-@-------------------------------------------------------------------
-	@RESTORE STACK POINTER
-	MOV sp, r10
-
-	@EXIT SYSCALL
-	MOV r7, #EXIT_FUNCTION
-	MOV r0, #EXIT_STATUS
-	SWI #0
-
-
-@-------------------------------------------------------------------
-_getInput:
+.GLOBAL _getInput 
 @ Description: Get user input from keyboard.
 @ Receives:    Memory address where the string must be placed in r4.
 @ Returns:     The string in the desired address.
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV r7, #READ_FUNCTION
-	MOV r0, #STD_IN
-	LDR r1, =tempBuffer 
-	MOV r2, #OPERATE_ONE_BYTE
-	__inner_getInput:
-		SWI #0
-		LDRB r3, [r1]
-		CMP r3, #LINE_FEED
-		POPeq {PC}
-		CMP r3, #SPACE
-		POPeq {PC}
-		STRB r3, [r4], #1
-		B __inner_getInput
 
 
 @-------------------------------------------------------------------
-_openFile:
+.GLOBAL _openFile
 @ Description: Open the desired file.
 @ Receives:    The file path/name in r0, flags in r1, and permissions
 @              in r2. Also the address where the FD will me saved in
@@ -78,120 +46,73 @@ _openFile:
 @              r0 will receive a number bellow or equal to zero, show
 @              an error message and exit.
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV r7, #OPEN_FUNCTION
-	SWI #0
-	CMP r0, #OPEN_ERROR
-	Ble _fileError
-	STR r0, [r5]
-	POP {PC}
 
 
 @-------------------------------------------------------------------
-_closeFile:
+.GLOBAL _closeFile 
 @ Description: Closes the required file.
 @ Receives:    The file descriptor in r0.
 @ Returns:     Nothing.
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV r7, #CLOSE_FUNCTION
-	SWI #0
-	POP {PC}
 
 
 @-------------------------------------------------------------------
-_copyFile:
+.GLOBAL _copyFile 
 @ Description: Copies data from an input file to an output file.
 @ Receives:    The input FD in r8 and the output FD in r9.
 @ Returns:     Nothing (Aside for the data into an output file).
 @-------------------------------------------------------------------
-	PUSH {LR}
-	LDR r1, =tempBuffer
-	MOV r2, #OPERATE_ONE_BYTE
-	_readFile:
-		MOV r0, r8
-		MOV r7, #READ_FUNCTION
-		SWI #0
-		CMP r0, #END_OF_FILE
-		POPle {PC}
-	_writeFile:
-		MOV r0, r9
-		MOV r7, #WRITE_FUNCTION
-		SWI #0	
-		B _readFile
 
 
 @-------------------------------------------------------------------
-_fileToString:
+.GLOBAL _fileToString
 @ Description: Copies data from a file to memory.
 @ Receives:    The string address, where the data will be placed, in 
 @              r1, and the input file descriptor, in r8.
 @ Returns:     The data in the requested string, in memory.
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV r2, #OPERATE_ONE_BYTE
-	__inner_fileToString:
-		MOV r0, r8
-		MOV r7, #READ_FUNCTION
-		SWI #0
-		CMP r0, #END_OF_FILE
-		POPle {PC}
-		ADD r1, r1, #1 
-		B __inner_fileToString
 
 
 @-------------------------------------------------------------------
-_stringToFile:
+.GLOBAL _stringToFile
 @ Description: Copies data from memory to file.
 @ Receives:    The string address, where the data is, in r1, and the 
 @              output file descriptor, in r9.
 @ Returns:     Nothing (Aside for the data in the requested file).
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV r2, #OPERATE_ONE_BYTE
-	__inner_stringToFile:
-		MOV r0, r9
-		MOV r7, #WRITE_FUNCTION
-		SWI #0
-		LDR r3, [r1], #1
-		CMP r3, #END_OF_FILE
-		POPle {PC}
-		B __inner_stringToFile
 
 
 @-------------------------------------------------------------------
-_printString:
+.GLOBAL _printString 
 @ Description: Print a message in the terminal.
 @ Receives:    The string address in r1.
 @ Returns:     Nothing.
 @-------------------------------------------------------------------
-	PUSH {LR}
-	MOV R7, #WRITE_FUNCTION
-	MOV R0, #STD_OUT
-	MOV R2, #OPERATE_ONE_BYTE
-	__inner_printString:
-		SWI #0	
-		LDRB r3, [r1, #1]!
-		CMP r3, #END_OF_STRING
-		Bne __inner_printString	
-	POP {PC}
 
 
-@-------------------------------------------------------------------
-_fileError:
-@ Description: Prints an error message and exits.
-@ Receives:    Nothing.
-@ Returns:     Nothing.
-@-------------------------------------------------------------------
-	LDR r1, =fileErrorString
-	BL _printString
-	B  _abortProgram
+@Constants
+.EQU EXIT_FUNCTION,    0x0001
+.EQU READ_FUNCTION,    0x0003
+.EQU WRITE_FUNCTION,   0x0004
+.EQU OPEN_FUNCTION,    0x0005
+.EQU CLOSE_FUNCTION,   0x0006
 
+.EQU READ_ONLY,        0x0000
+.EQU DONT_CREATE,      0x0000 
+.EQU CREATE_WRITE,     0x0241
+.EQU PERMISSIONS,      0x01FF
 
-.DATA
+.EQU STD_OUT,          0x0001
+.EQU STD_IN,           0x0001
+.EQU OPERATE_ONE_BYTE, 0x0001
 
-.BALIGN 4
+.EQU OPEN_ERROR,       0x0000
+.EQU END_OF_FILE,      0x0000
+.EQU END_OF_STRING,    0x0000
 
-@System Strings
-fileErrorString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Specified input file doesn't exist.\nAborting.\n"
-tempBuffer:        .BYTE 1
+.EQU LINE_FEED,        0x000A
+.EQU SPACE,            0x0020
+
+.EQU EXIT_STATUS,      0x0000
+
+.ENDIF
