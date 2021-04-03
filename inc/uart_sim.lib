@@ -1,14 +1,62 @@
 @-------------------------------------------------------------------
-@ File:           uart_sim.s
-@ Author:         Pedro Botelho
-@ Date:           13/06/2021
+@ File:           copycat.s
+@ Author:         Francisco Ítalo & Pedro Botelho
+@ Date:           03/04/2021
 @ Institution:    Federal University of Ceará
-@ Institution ID: 471047
+@ Institution ID: 472012 & 471047
 @
-@ Description:    XX
+@ Description:    Copies data from one file to another. The input file
+@                 must exist. The output file can be inexistent.
+@
 @ Implementation: Developed in ARM 32-bit Assembly.
-@ Compiling:      make all
 @ License:        GNU General Public License v3.0
+@ Compiling:      make it         
+@ Running:        make run        
+@ Debugging:      make debug        
 @-------------------------------------------------------------------
 
+
+.IFNDEF UART_SIM_LIB
+.EQU    UART_SIM_LIB, 0
+
+@-------------------------------------------------------------------
 .GLOBAL _decodeUART
+@ Description: Decode UART pulses of a file into ASCII characters.
+@ Receives:    Input string, with the UART pulses, in r1, and output
+@              string, where the ASCII characters will be placed, in
+@              r2.
+@ Returns:     The decoded character in the required string.
+@-------------------------------------------------------------------
+
+
+@-------------------------------------------------------------------
+.GLOBAL _decodeCHAR
+@ Description: Decode ASCII characters of a file into UART pulses.
+@ Receives:    Input string, with the ASCII characters, in r1, and
+@              output string, where the UART pulses will be placed,
+@              in r2.
+@ Returns:     The decoded pulses in the required string.
+@-------------------------------------------------------------------
+	PUSH {LR}
+
+	POP {PC}
+	
+
+@-------------------------------------------------------------------
+.GLOBAL _verifyValue
+@ Description: Verify two value equality. If not equal, then a error
+@              message is displayed and the program aborts. 
+@ Receives:    The values in r0 and r3.
+@ Returns:     If equal, zero flag is activated.
+@-------------------------------------------------------------------
+
+
+@-------------------------------------------------------------------
+.GLOBAL _getOption
+@ Description: Get user's option from keyboard.
+@ Receives:    The string for the option to be stored in r4.
+@ Returns:     Nothing.
+@-------------------------------------------------------------------
+
+
+.ENDIF

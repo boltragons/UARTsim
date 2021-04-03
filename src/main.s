@@ -34,6 +34,15 @@ main:
 	LDR r1, =welcomeString
 	BL _printString
 
+	@GET OPERATION OPTION
+	LDR r1, =optionString
+	LDR r4, =operationOption
+	BL _getOption
+
+	@SHOW INPUT MESSAGE
+	LDR r1, =inputString
+	BL _printString
+
 	@GET INPUT FILE's NAME
 	LDR r4, =inputFile
 	BL _getInput
@@ -66,10 +75,11 @@ main:
 	LDR r1, =inputFileData
 	BL _fileToString
 
-	@UART->CHAR
 	LDR r1, =inputFileData
 	LDR r2, =outputFileData
-	BL _decodeUART
+	CMP r11, #0x31
+	BLeq _decodeUART
+	BLne _decodeCHAR
 
 	@LOAD MEMORY DATA TO FILE
 	LDR r1, =outputFileData
@@ -97,13 +107,16 @@ main:
 .BALIGN 4
 .DATA
 
-welcomeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInitialization\033[0m: Welcome to UART Simulator.\n\nType down the path of the input file, then the output file\n\n"
+welcomeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInitialization\033[0m: Welcome to UART Simulator v0.0.3\n\n                         Under GNU General Public License v3.0\n\n"
+optionString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOperation\033[0m: Select the desired operation\n\n(1) \033[1;94mDecode UART pulses into ASCII characters\033[0m\n(2) \033[1;94mDecode ASCII characters pulses into UART pulses\033[0m\n\n"
+inputString:    .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mFiles\033[0m: Insert input and output files, separated by space or line feed.\n"
 goodbyeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mShutdown\033[0m: All set. Exiting assistant.\n"
 
 @User variables
-inputFile:      .SKIP 100
-inputFD:        .SKIP 4
-outputFile:     .SKIP 100
-outputFD:       .SKIP 4	
-inputFileData:  .SKIP 1050621
-outputFileData: .SKIP 1050621 
+operationOption: .SKIP 100
+inputFile:       .SKIP 100
+inputFD:         .SKIP 4
+outputFile:      .SKIP 100
+outputFD:        .SKIP 4	
+inputFileData:   .SKIP 1050621
+outputFileData:  .SKIP 1050621 
