@@ -28,7 +28,7 @@
 
 main:
 	@SET r10 AS STACK BASE
-	MOV r10, sp
+	MOV r10, SP
 
 	@SHOW WELCOME MESSAGE
 	LDR r1, =welcomeString
@@ -108,12 +108,12 @@ main:
 .DATA
 
 welcomeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInitialization\033[0m: Welcome to UART Simulator v0.0.3\n\n                         Under GNU General Public License v3.0\n\n"
-optionString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOperation\033[0m: Select the desired operation\n\n(1) \033[1;94mDecode UART pulses into ASCII characters\033[0m\n(2) \033[1;94mDecode ASCII characters pulses into UART pulses\033[0m\n\n"
+optionString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOperation\033[0m: Select the desired operation:\n\n(1) \033[1;94mDecode UART pulses into ASCII characters\033[0m\n(2) \033[1;94mDecode ASCII characters into UART pulses\033[0m\n\n"
 inputString:    .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mFiles\033[0m: Insert input and output files, separated by space or line feed.\n"
 goodbyeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mShutdown\033[0m: All set. Exiting assistant.\n"
 
 @User variables
-operationOption: .SKIP 100
+operationOption: .BYTE 1
 inputFile:       .SKIP 100
 inputFD:         .SKIP 4
 outputFile:      .SKIP 100

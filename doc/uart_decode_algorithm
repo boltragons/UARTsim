@@ -1,0 +1,38 @@
+count = 9           = r5
+string = 0100111001 = r1
+pre = y             = r3
+uart = x            = r4
+
+	pre = [string], #1
+	
+	SE count = 9 -> pre = 0x30, count - 1, LOOP
+	SE NAO, ERRO DE CODIGO
+	
+	SE count = 0 -> pre = 0x31, count = 9, LOOP
+	SE NAO, ERRO DE CODIGO
+	
+	SE pre == 0xA[ -> count = 9 (FACULTATIVO)], LOOP
+	
+	SE 0x30 <= pre <= 0x31
+	SE NAO, ERRO DE CODIGO
+	
+		pre = pre & 1
+		pre = pre << (8 - count)
+		uart = uart | pre
+		
+		
+0100111001
+
+0 count = 9, pre = 0, uart = 0;
+1 count = 8, pre = 1, uart = 1;
+0 count = 7, pre = 0, uart = 1;
+0 count = 6, pre = 0, uart = 1;
+1 count = 5, pre = 1000, uart = 1001;
+1 count = 4, pre = 10000, uart = 11001;
+1 count = 3, pre = 100000, uart = 111001;
+0 count = 2, pre = 0, uart = 111001;
+0 count = 1, pre = 0, uart = 111001;
+1 count = 0, pre = 0, uart = 111001;
+
+0011 1001 => 0x39 => '9' 
+	

@@ -1,5 +1,5 @@
 @-------------------------------------------------------------------
-@ File:           copycat.s
+@ File:           uart_sim.s
 @ Author:         Francisco Ítalo & Pedro Botelho
 @ Date:           03/04/2021
 @ Institution:    Federal University of Ceará
@@ -19,6 +19,7 @@
 .IFNDEF UART_SIM_LIB
 .EQU    UART_SIM_LIB, 0
 
+
 @-------------------------------------------------------------------
 .GLOBAL _decodeUART
 @ Description: Decode UART pulses of a file into ASCII characters.
@@ -32,14 +33,11 @@
 @-------------------------------------------------------------------
 .GLOBAL _decodeCHAR
 @ Description: Decode ASCII characters of a file into UART pulses.
-@ Receives:    Input string, with the ASCII characters, in r1, and
-@              output string, where the UART pulses will be placed,
-@              in r2.
+@ Receives:    Input string, with the UART pulses, in r1, and output 
+@              string, where the ASCII characters will be placed, in 
+@              r2.
 @ Returns:     The decoded pulses in the required string.
 @-------------------------------------------------------------------
-	PUSH {LR}
-
-	POP {PC}
 	
 
 @-------------------------------------------------------------------

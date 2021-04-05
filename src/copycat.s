@@ -130,9 +130,9 @@ _fileToString:
 @-------------------------------------------------------------------
 	PUSH {LR}
 	MOV r2, #OPERATE_ONE_BYTE
+	MOV r7, #READ_FUNCTION
 	__inner_fileToString:
 		MOV r0, r8
-		MOV r7, #READ_FUNCTION
 		SWI #0
 		CMP r0, #END_OF_FILE
 		POPle {PC}
@@ -149,9 +149,9 @@ _stringToFile:
 @-------------------------------------------------------------------
 	PUSH {LR}
 	MOV r2, #OPERATE_ONE_BYTE
+	MOV r7, #WRITE_FUNCTION
 	__inner_stringToFile:
 		MOV r0, r9
-		MOV r7, #WRITE_FUNCTION
 		SWI #0
 		LDR r3, [r1], #1
 		CMP r3, #END_OF_FILE
