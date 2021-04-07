@@ -101,9 +101,33 @@ _decodeCHAR:
 @ Returns:     The decoded pulses in the required string.
 @-------------------------------------------------------------------
 	PUSH {LR}
+	MOV r5, #0x30
+	MOV r6, #0x31
+	_decodeCHAR_procedure:
+		MOV r7, #7
+		LDRB r3, [r1], #1
 
-	POP {PC}
-	
+		CMP r3, #0xA
+		Beq _decodeCHAR_procedure
+
+		@IF r3 IS A END-OF-STRING -> EXIT
+		CMP r3, #0
+		POPeq {PC}
+
+		STRB r5, [r2], #1
+
+		__inner_decodeCHAR_procedure:
+			AND r4, r3, #1
+			ADD r4, r4, #0x30
+			STRB r4, [r2], #1
+
+			CMP r7, #0
+			STReqB r6, [r2], #1
+			Beq _decodeCHAR_procedure
+
+			LSR r3, r3, #1
+			SUB r7, r7, #1
+			B __inner_decodeCHAR_procedure
 
 @-------------------------------------------------------------------
 _verifyValue:
@@ -158,6 +182,17 @@ _UARTcodeError:
 	B  _abortProgram
 
 
+@-------------------------------------------------------------------
+_CHARcodeError:
+@ Description: Prints an error message and exits.
+@ Receives:    Nothing.
+@ Returns:     Nothing.
+@-------------------------------------------------------------------
+	LDR r1, =CHARcodeErrorString
+	BL _printString
+	B  _abortProgram
+
+
 
 .DATA
 
@@ -166,4 +201,5 @@ _UARTcodeError:
 @System Strings
 optionErrorString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mInvalid option\033[0m: Try again.\n\n"
 UARTcodeErrorString: .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Invalid UART pulse.\nAborting.\n\n"
+CHARcodeErrorString: .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Invalid ASCII code.\nAborting.\n\n"
 
