@@ -1,0 +1,83 @@
+@-------------------------------------------------------------------
+@ File:           uart_sim.s
+@ Author:         Francisco Ítalo & Pedro Botelho
+@ Date:           03/04/2021
+@ Institution:    Federal University of Ceará
+@ Institution ID: 472012 & 471047
+@
+@ Description:    Copies data from one file to another. The input file
+@                 must exist. The output file can be inexistent.
+@
+@ Implementation: Developed in ARM 32-bit Assembly.
+@ License:        GNU General Public License v3.0
+@ Compiling:      make it         
+@ Running:        make run        
+@ Debugging:      make debug        
+@-------------------------------------------------------------------
+
+
+.IFNDEF UART_SIM_LIB
+.EQU    UART_SIM_LIB, 0
+
+
+@-------------------------------------------------------------------
+.GLOBAL _decodeUART
+@ Description: Decode UART pulses of a file into ASCII characters.
+@ Receives:    Input string, with the UART pulses, in r1, and output
+@              string, where the ASCII characters will be placed, in
+@              r2.
+@ Returns:     The decoded character in the required string.
+@-------------------------------------------------------------------
+
+
+@-------------------------------------------------------------------
+.GLOBAL _decodeCHAR
+@ Description: Decode ASCII characters of a file into UART pulses.
+@ Receives:    Input string, with the UART pulses, in r1, and output 
+@              string, where the ASCII characters will be placed, in 
+@              r2.
+@ Returns:     The decoded pulses in the required string.
+@-------------------------------------------------------------------
+	
+
+@-------------------------------------------------------------------
+.GLOBAL _verifyValue
+@ Description: Verify two value equality. If not equal, then a error
+@              message is displayed and the program aborts. 
+@ Receives:    The values in r0 and r3.
+@ Returns:     If equal, zero flag is activated.
+@-------------------------------------------------------------------
+
+
+@-------------------------------------------------------------------
+.GLOBAL _getOption
+@ Description: Get user's option from keyboard.
+@ Receives:    The string for the option to be stored in r4.
+@ Returns:     Nothing.
+@-------------------------------------------------------------------
+
+
+.ENDIF
+
+@Constants
+
+.EQU SHIFT_AUXILIARY, 0x08
+.EQU RESET_UART,      0x00
+.EQU UART_COUNTER,    0x0A
+.EQU CHAR_COUNTER,    0x07
+
+.EQU DECREMENT_COUNTER, 0x01
+.EQU FILTER_BINARY_VALUE, 1
+
+.EQU BETWEEN_ONE, 0x2F
+.EQU AND_TWO, 0x31
+
+.EQU COUNTER_END_CONTROL_BIT, 0x00
+.EQU COUNTER_INIT_CONTROL_BIT, 0x09
+.EQU END, 0x00
+
+.EQU SHIFT_ONE_BYTE_RIGHT, 0x01
+
+.EQU CHAR_ZERO, 0x30
+.EQU CHAR_ONE, 0x31
+.EQU CHAR_TWO, 0x32
