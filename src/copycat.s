@@ -82,7 +82,6 @@ _openFile:
 	MOV r7, #OPEN_FUNCTION
 	SWI #0
 	CMP r0, #OPEN_ERROR
-	Ble _fileError
 	STR r0, [r5]
 	POP {PC}
 
@@ -178,20 +177,26 @@ _printString:
 
 
 @-------------------------------------------------------------------
-_fileError:
-@ Description: Prints an error message and exits.
-@ Receives:    Nothing.
-@ Returns:     Nothing.
+_clearString:
+@ Description: Clear a string in the memory, filling it with zeros.
+@ Receives:    The string address in r4.
+@ Returns:     The string in r4 empty.
 @-------------------------------------------------------------------
-	LDR r1, =fileErrorString
-	BL _printString
-	B  _abortProgram
+	PUSH {LR}
+	PUSH {r4}
+	MOV r1, #0
+	__inner_clearString:
+		LDRB r0, [r4]
+		CMP r0, #0
+		POPeq {r4}
+		POPeq {PC}
+		STRB r1, [r4], #1
+		B __inner_clearString
 
 
 .DATA
 
 .BALIGN 4
 
-@System Strings
-fileErrorString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Specified input file doesn't exist.\nAborting.\n"
+@System Variables
 tempBuffer:        .BYTE 1

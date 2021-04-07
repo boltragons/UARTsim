@@ -52,7 +52,7 @@ _decodeUART:
 	_decodeUART_procedure:
 		MOV r4, #0
 		MOV r5, #10
-		_decodeUART_procedure_inner:
+		__inner_decodeUART_procedure:
 			SUB r5, r5, #1
 			LDRB r3, [r1], #1
 
@@ -68,7 +68,7 @@ _decodeUART:
 			CMP r5, #9
 			MOVeq r0, #0x30
 			BLeq  _verifyValue
-			Beq   _decodeUART_procedure_inner
+			Beq   __inner_decodeUART_procedure
 
 			@END BIT
 			CMP r5, #0
@@ -89,7 +89,7 @@ _decodeUART:
 			LSL r3, r3, r7
 			ORR r4, r4, r3
 
-			B _decodeUART_procedure_inner
+			B __inner_decodeUART_procedure
 
 
 @-------------------------------------------------------------------
@@ -120,7 +120,8 @@ _verifyValue:
 
 @-------------------------------------------------------------------
 _getOption:
-@ Description: Get user's option from keyboard.
+@ Description: Gets the user's desired option from the keyboard and
+@              ensures that the option is valid.
 @ Receives:    The address for the option to be stored in r4, and the
 @              message address in r1.
 @ Returns:     The option in the memory and in r11.
@@ -128,22 +129,23 @@ _getOption:
 	PUSH {LR}
 	MOV r8, r4
 	MOV r9, r1
-	_getOption_inner:
+	__inner_getOption:
 		BL _printString
 		BL _getInput
 		LDRB r11, [r4, #-1]!
 
 		CMP r11, #0x30
-		Bls _getOption_optionError
+		Bls __optionError_getOption
 		CMP r11, #0x32
 		POPls {PC} 
 
-	_getOption_optionError:
+	__optionError_getOption:
 		LDR  r1, =optionErrorString
 		BL  _printString
 		MOV  r4, r8
 		MOV  r1, r9
-		B   _getOption_inner
+		B   __inner_getOption
+
 
 @-------------------------------------------------------------------
 _UARTcodeError:

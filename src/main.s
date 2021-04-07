@@ -39,38 +39,64 @@ main:
 	LDR r4, =operationOption
 	BL _getOption
 
-	@SHOW INPUT MESSAGE
-	LDR r1, =inputString
+	@SHOW INPUT FILE MESSAGE
+	LDR r1, =inputFileString
 	BL _printString
 
 	@GET INPUT FILE's NAME
 	LDR r4, =inputFile
-	BL _getInput
+	MOV r6, r4
+	_getInputFile:
+		BL _getInput
+
+		@OPENING INPUT FILE
+		LDR r0, =inputFile
+		MOV r1, #DONT_CREATE
+		MOV r2, #READ_ONLY
+		LDR r5, =inputFD
+		BL _openFile
+		
+		@SET r8 AS INPUT FD
+		MOV r8, r0	
+
+		CMP r8, #0
+		LDRle r1, =inputFileErrorString
+		BLle _printString
+
+		MOVeq r4, r6
+		BLeq _clearString
+		Beq _getInputFile
+
+
+	@SHOW OUTPUT FILE MESSAGE
+	LDR r1, =outputFileString
+	BL _printString
 
 	@GET OUTPUT FILE's NAME
 	LDR r4, =outputFile
-	BL _getInput
-	 
-	@OPENING INPUT FILE
-	LDR r0, =inputFile
-	MOV r1, #DONT_CREATE
-	MOV r2, #READ_ONLY
-	LDR r5, =inputFD
-	BL _openFile
-	
-	@SET r8 AS INPUT FD
-	MOV r8, r0	
-	
-	@OPENING OUTPUT FILE
-	LDR  r0, =outputFile
-	LDR  r1, =CREATE_WRITE
-	LDR  r2, =PERMISSIONS
-	LDR  r5, =outputFD
-	BL  _openFile
+	MOV r6, r4
+	_getOutputFile:
+		BL _getInput
 
-	@SET r9 AS OUTPUT FD
-	MOV r9, r0
-	
+		@OPENING OUTPUT FILE
+		LDR  r0, =outputFile
+		LDR  r1, =CREATE_WRITE
+		LDR  r2, =PERMISSIONS
+		LDR  r5, =outputFD
+		BL  _openFile
+
+		@SET r9 AS OUTPUT FD
+		MOV r9, r0
+
+		CMP r9, #0
+		LDRle r1, =outputFileErrorString
+		BLle _printString
+
+		MOVeq r4, r6
+		BLeq _clearString
+		Beq _getOutputFile
+
+
 	@LOAD FILE DATA TO MEMORY
 	LDR r1, =inputFileData
 	BL _fileToString
@@ -107,10 +133,14 @@ main:
 .BALIGN 4
 .DATA
 
-welcomeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInitialization\033[0m: Welcome to UART Simulator v0.0.3\n\n                         Under GNU General Public License v3.0\n\n"
-optionString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOperation\033[0m: Select the desired operation:\n\n(1) \033[1;94mDecode UART pulses into ASCII characters\033[0m\n(2) \033[1;94mDecode ASCII characters into UART pulses\033[0m\n\n"
-inputString:    .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mFiles\033[0m: Insert input and output files, separated by space or line feed.\n"
-goodbyeString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mShutdown\033[0m: All set. Exiting assistant.\n"
+welcomeString:         .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInitialization\033[0m: Welcome to UART Simulator v0.0.3\n\n                         Under GNU General Public License v3.0\n\n"
+optionString:          .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOperation\033[0m: Select the desired operation:\n\n(1) \033[1;94mDecode UART pulses into ASCII characters\033[0m\n(2) \033[1;94mDecode ASCII characters into UART pulses\033[0m\n\n"
+inputFileString:       .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mInput File\033[0m: Insert input file's name, then press enter.\n"
+outputFileString:      .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mOutput File\033[0m: Insert output file's name, then press enter.\n"
+goodbyeString:         .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;33mShutdown\033[0m: All set. Exiting assistant.\n"
+
+inputFileErrorString:  .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mInvalid Input File\033[0m: Specified input file doesn't exist. Try again.\n"
+outputFileErrorString: .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mInvalid Output File\033[0m: Invalid file name. Try again.\n"
 
 @User variables
 operationOption: .BYTE 1

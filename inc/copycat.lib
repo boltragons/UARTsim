@@ -90,6 +90,14 @@
 @-------------------------------------------------------------------
 
 
+@-------------------------------------------------------------------
+.GLOBAL _clearString
+@ Description: Clear a string in the memory, filling it with zeros.
+@ Receives:    The string address in r4.
+@ Returns:     The string in r4 empty.
+@-------------------------------------------------------------------
+
+
 @Constants
 .EQU EXIT_FUNCTION,    0x0001
 .EQU READ_FUNCTION,    0x0003
