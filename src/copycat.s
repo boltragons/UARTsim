@@ -1,7 +1,7 @@
 @-------------------------------------------------------------------
 @ File:           copycat.s
 @ Author:         Francisco Ítalo & Pedro Botelho
-@ Date:           03/04/2021
+@ Date:           07/04/2021
 @ Institution:    Federal University of Ceará
 @ Institution ID: 472012 & 471047
 @
@@ -56,7 +56,7 @@ _getInput:
 		POPeq {PC}
 		CMP r3, #SPACE
 		POPeq {PC}
-		STRB r3, [r4], #1
+		STRB r3, [r4], #INCREMENT_POINTER
 		B __inner_getInput
 
 
@@ -135,7 +135,7 @@ _fileToString:
 		SWI #0
 		CMP r0, #END_OF_FILE
 		POPle {PC}
-		ADD r1, r1, #1 
+		ADD r1, r1, #INCREMENT_POINTER
 		B __inner_fileToString
 
 
@@ -152,7 +152,7 @@ _stringToFile:
 	__inner_stringToFile:
 		MOV r0, r9
 		SWI #0
-		LDR r3, [r1], #1
+		LDR r3, [r1], #INCREMENT_POINTER
 		CMP r3, #END_OF_FILE
 		POPle {PC}
 		B __inner_stringToFile
@@ -170,7 +170,7 @@ _printString:
 	MOV R2, #OPERATE_ONE_BYTE
 	__inner_printString:
 		SWI #0	
-		LDRB r3, [r1, #1]!
+		LDRB r3, [r1, #INCREMENT_POINTER]!
 		CMP r3, #END_OF_STRING
 		Bne __inner_printString	
 	POP {PC}
@@ -184,13 +184,13 @@ _clearString:
 @-------------------------------------------------------------------
 	PUSH {LR}
 	PUSH {r4}
-	MOV r1, #0
+	MOV r1, #ZERO_ALL
 	__inner_clearString:
 		LDRB r0, [r4]
-		CMP r0, #0
+		CMP r0, #END_OF_STRING
 		POPeq {r4}
 		POPeq {PC}
-		STRB r1, [r4], #1
+		STRB r1, [r4], #INCREMENT_POINTER
 		B __inner_clearString
 
 

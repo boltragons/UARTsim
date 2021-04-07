@@ -1,7 +1,7 @@
 @-------------------------------------------------------------------
 @ File:           main.s
 @ Author:         Francisco Ítalo & Pedro Botelho
-@ Date:           03/04/2021
+@ Date:           07/04/2021
 @ Institution:    Federal University of Ceará
 @ Institution ID: 472012 & 471047
 @
@@ -59,10 +59,12 @@ main:
 		@SET r8 AS INPUT FD
 		MOV r8, r0	
 
-		CMP r8, #0
+		@CHECKS IF THE FILE EXISTS 
+		CMP r8, #OPEN_ERROR
 		LDRle r1, =inputFileErrorString
 		BLle _printString
 
+		@IF NOT, TRY AGAIN
 		MOVeq r4, r6
 		BLeq _clearString
 		Beq _getInputFile
@@ -88,10 +90,12 @@ main:
 		@SET r9 AS OUTPUT FD
 		MOV r9, r0
 
-		CMP r9, #0
+		@CHECKS IF THE FILE NAME IS VALID 
+		CMP r9, #OPEN_ERROR
 		LDRle r1, =outputFileErrorString
 		BLle _printString
 
+		@IF NOT, TRY AGAIN
 		MOVeq r4, r6
 		BLeq _clearString
 		Beq _getOutputFile
@@ -101,6 +105,7 @@ main:
 	LDR r1, =inputFileData
 	BL _fileToString
 
+	@CHOOSE OPERATION BASED ON USER'S CHOICE
 	LDR r1, =inputFileData
 	LDR r2, =outputFileData
 	CMP r11, #0x31

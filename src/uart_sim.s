@@ -1,7 +1,7 @@
 @-------------------------------------------------------------------
 @ File:           uart_sim.s
 @ Author:         Francisco Ítalo & Pedro Botelho
-@ Date:           03/04/2021
+@ Date:           07/04/2021
 @ Institution:    Federal University of Ceará
 @ Institution ID: 472012 & 471047
 @
@@ -45,88 +45,92 @@ _decodeUART:
 @ Receives:    Input string, with the UART pulses, in r1, and output
 @              string, where the ASCII characters will be placed, in
 @              r2.
-@ Returns:     The decoded character in the required string.
+@ Returns:     The decoded characterS in the required string.
 @-------------------------------------------------------------------
 	PUSH {LR}
-	MOV r6, #8
+	MOV r6, #SHIFT_AUXILIARY
 	_decodeUART_procedure:
-		MOV r4, #0
-		MOV r5, #10
-		__inner_decodeUART_procedure:
-			SUB r5, r5, #1
-			LDRB r3, [r1], #1
+		MOV r4, #RESET_UART
+		MOV r5, #UART_COUNTER
+		__inner_decodeUART_procedure_counter:
+			SUB r5, r5, #DECREMENT_COUNTER
+		__inner_decodeUART_procedure_load:
+			LDRB r3, [r1], #INCREMENT_POINTER
 
-			@IF r3 IS A END-OF-STRING AND r5 IS ZERO -> EXIT
-			CMP r3, #0
+			@IF r3 IS A LINE-FEED THEN LOAD AGAIN
+			CMP r3, #LINE_FEED
+			Beq __inner_decodeUART_procedure_load
+
+			@IF r3 IS A END-OF-STRING AND r5 IS ZERO THEN EXIT
+			CMP r3, #END_OF_STRING
+			MOVeq r0, #COUNTER_INIT_CONTROL_BIT
+			MOVeq r3, r5
+			BLeq  _verifyValue
 			POPeq {PC}
 
-			@IF r3 IS A LINE-FEED AND r5 IS ZERO -> LOOP
-			CMP r3, #0xA
-			Beq _decodeUART_procedure
-
 			@INIT BIT
-			CMP r5, #9
-			MOVeq r0, #0x30
+			CMP r5, #COUNTER_INIT_CONTROL_BIT
+			MOVeq r0, #CHAR_ZERO
 			BLeq  _verifyValue
-			Beq   __inner_decodeUART_procedure
+			Beq   __inner_decodeUART_procedure_counter
 
 			@END BIT
-			CMP r5, #0
-			MOVeq r0, #0x31
+			CMP r5, #COUNTER_END_CONTROL_BIT
+			MOVeq r0, #CHAR_ONE
 			BLeq  _verifyValue
-			STReqB r4, [r2], #1
+			STReqB r4, [r2], #INCREMENT_POINTER
 			Beq   _decodeUART_procedure
 
 			@BONDARIES BIT
-			CMP r3, #0x2F
+			CMP r3, #BETWEEN_ONE
 			Bls _UARTcodeError
-			CMP r3, #0x31
+			CMP r3, #AND_TWO
 			Bhi _UARTcodeError
 
 			@LOGIC
 			SUB r7, r6, r5 
-			AND r3, r3, #1
+			AND r3, r3, #FILTER_BINARY_VALUE
 			LSL r3, r3, r7
 			ORR r4, r4, r3
 
-			B __inner_decodeUART_procedure
+			B __inner_decodeUART_procedure_counter
 
 
 @-------------------------------------------------------------------
 _decodeCHAR:
 @ Description: Decode ASCII characters of a file into UART pulses.
-@ Receives:    Input string, with the UART pulses, in r1, and output 
-@              string, where the ASCII characters will be placed, in 
-@              r2.
+@ Receives:    Input string, with the ASCII characters, in r1, and  
+@              output string, where the UART pulses will be placed,
+@              in r2.
 @ Returns:     The decoded pulses in the required string.
 @-------------------------------------------------------------------
 	PUSH {LR}
-	MOV r5, #0x30
-	MOV r6, #0x31
+	MOV r5, #CHAR_ZERO
+	MOV r6, #CHAR_ONE
 	_decodeCHAR_procedure:
-		MOV r7, #7
-		LDRB r3, [r1], #1
+		MOV r7, #CHAR_COUNTER
+		LDRB r3, [r1], #INCREMENT_POINTER
 
-		CMP r3, #0xA
+		CMP r3, #LINE_FEED
 		Beq _decodeCHAR_procedure
 
 		@IF r3 IS A END-OF-STRING -> EXIT
-		CMP r3, #0
+		CMP r3, #END_OF_STRING
 		POPeq {PC}
 
-		STRB r5, [r2], #1
+		STRB r5, [r2], #INCREMENT_POINTER
 
 		__inner_decodeCHAR_procedure:
-			AND r4, r3, #1
-			ADD r4, r4, #0x30
-			STRB r4, [r2], #1
+			AND r4, r3, #FILTER_BINARY_VALUE
+			ADD r4, r4, #CHAR_ZERO
+			STRB r4, [r2], #INCREMENT_POINTER
 
-			CMP r7, #0
-			STReqB r6, [r2], #1
+			CMP r7, #END
+			STReqB r6, [r2], #INCREMENT_POINTER
 			Beq _decodeCHAR_procedure
 
-			LSR r3, r3, #1
-			SUB r7, r7, #1
+			LSR r3, r3, #SHIFT_ONE_BYTE_RIGHT
+			SUB r7, r7, #DECREMENT_COUNTER
 			B __inner_decodeCHAR_procedure
 
 @-------------------------------------------------------------------
@@ -156,11 +160,11 @@ _getOption:
 	__inner_getOption:
 		BL _printString
 		BL _getInput
-		LDRB r11, [r4, #-1]!
+		LDRB r11, [r4, #DECREMENT_POINTER]!
 
-		CMP r11, #0x30
+		CMP r11, #CHAR_ZERO
 		Bls __optionError_getOption
-		CMP r11, #0x32
+		CMP r11, #CHAR_TWO
 		POPls {PC} 
 
 	__optionError_getOption:
