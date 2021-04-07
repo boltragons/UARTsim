@@ -88,7 +88,7 @@ _decodeUART:
 			Bhi _UARTcodeError
 
 			@LOGIC
-			SUB r7, r6, r5 
+			SUB r7, r6, r5
 			AND r3, r3, #FILTER_BINARY_VALUE
 			LSL r3, r3, r7
 			ORR r4, r4, r3
@@ -114,7 +114,7 @@ _decodeCHAR:
 		CMP r3, #LINE_FEED
 		Beq _decodeCHAR_procedure
 
-		@IF r3 IS A END-OF-STRING -> EXIT
+		@IF r3 IS A END-OF-STRING THEN EXIT
 		CMP r3, #END_OF_STRING
 		POPeq {PC}
 
@@ -186,17 +186,6 @@ _UARTcodeError:
 	B  _abortProgram
 
 
-@-------------------------------------------------------------------
-_CHARcodeError:
-@ Description: Prints an error message and exits.
-@ Receives:    Nothing.
-@ Returns:     Nothing.
-@-------------------------------------------------------------------
-	LDR r1, =CHARcodeErrorString
-	BL _printString
-	B  _abortProgram
-
-
 
 .DATA
 
@@ -205,5 +194,3 @@ _CHARcodeError:
 @System Strings
 optionErrorString:   .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mInvalid option\033[0m: Try again.\n\n"
 UARTcodeErrorString: .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Invalid UART pulse.\nAborting.\n\n"
-CHARcodeErrorString: .ASCIZ "\n\033[1;37mUARTsim\033[0m: \033[1;31mFatal error\033[0m: Invalid ASCII code.\nAborting.\n\n"
-
