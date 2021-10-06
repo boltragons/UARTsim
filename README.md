@@ -1,6 +1,6 @@
 # UARTsim v0.0.4
 
-Simulates the UART protocol, decoding UART pulses or ASCII characters.
+Simulates the UART protocol using ARM Assembly, decoding UART pulses or ASCII characters.
 
 Update v0.0.1: Initial comit. Basic file management procedures added. Basic UART pulses decoding procedure included.
 
